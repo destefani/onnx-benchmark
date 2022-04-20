@@ -2,8 +2,8 @@ import re
 import time
 
 def execution_time(process):
-    """ Calculate the execution time of a process """
+    """ Calculates the execution time of a function """
     start_time = time.time()
-    process()
+    (lambda: process)()
     end_time = time.time()
     return (end_time - start_time)
