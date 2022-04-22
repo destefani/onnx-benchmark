@@ -11,14 +11,22 @@ from skl2onnx import convert_sklearn
 from skl2onnx.common.data_types import FloatTensorType
 from sklearn.linear_model import LogisticRegression
 
+# ----------------------------------------------------------------------------
 
-# Logistic regression report
+
+def main():
+    pass
+
+
+# ----------------------------------------------------------------------------
 
 config = {
     "n_features": [10, 100, 1000, 10000],
     "n_samples": [1e4, 1e5, 1e6, 1e7],
     "model_type": "logistic_regression",
 }
+
+# ----------------------------------------------------------------------------
 
 
 def train_data(n_features):
@@ -84,3 +92,9 @@ def execution_time(process):
     (lambda: process)()
     end_time = time.time()
     return end_time - start_time
+
+
+# ----------------------------------------------------------------------------
+
+if __name__ == "__main__":
+    main()
