@@ -24,6 +24,7 @@ from sklearn.linear_model import LogisticRegression
 def check_directory(path):
     Path(path).mkdir(exist_ok=True)
 
+
 def train_data(n_features):
     """Generate training data"""
     X = np.random.rand(10, n_features)
@@ -90,42 +91,61 @@ def execution_time(process):
 
 
 # ----------------------------------------------------------------------------
+
+
 @click.command()
-
-@click.option('--outdir',     help='Where to save the results', metavar='DIR',                   default='results/')
-@click.option('--n_features', help='The number of features in the training data', metavar='INT', type=click.IntRange(min=1), default=100)
-@click.option('--n_samples',  help='The number of samples in the test data', metavar='INT',      type=click.IntRange(min=1), default=1e4)
-
+@click.option(
+    "--outdir", help="Where to save the results", metavar="DIR", default="results/"
+)
+@click.option(
+    "--n_features",
+    help="The number of features in the training data",
+    metavar="INT",
+    type=click.IntRange(min=1),
+    default=100,
+)
+@click.option(
+    "--n_samples",
+    help="The number of samples in the test data",
+    metavar="INT",
+    type=click.IntRange(min=1),
+    default=1e4,
+)
 def main(**kwargs):
-    
+
     # Setup
     opt = kwargs
     print(opt)
-    check_directory(opt['outdir'])
+    check_directory(opt["outdir"])
 
     # Define model
-    X_train, y_train = train_data(opt['n_features'])
-    print('X_train shape:', X_train.shape)
-    print('y_train shape:', y_train.shape)
+    X_train, y_train = train_data(opt["n_features"])
+    print("X_train shape:", X_train.shape)
+    print("y_train shape:", y_train.shape)
 
     clf = fit_model(X_train, y_train)
     print(clf)
 
     # save models
-    skl_model = save_skl(clf, opt['outdir'])
-    onnx_model = save_onnx(clf, opt['n_features'], opt['outdir'])
+    skl_model = save_skl(clf, opt["outdir"])
+    onnx_model = save_onnx(clf, opt["n_features"], opt["outdir"])
     print(onnx_model)
 
     # reports
-    skl_inference_time, skl_weights_size = skl_report(opt['n_features'], opt['n_samples'], skl_model)
-    print('n_features:', opt['n_features'])
-    print('skl_inference_time:', skl_inference_time)
-    print('skl_weights_size:', skl_weights_size)
+    skl_inference_time, skl_weights_size = skl_report(
+        opt["n_features"], opt["n_samples"], skl_model
+    )
+    print("n_features:", opt["n_features"])
+    print("skl_inference_time:", skl_inference_time)
+    print("skl_weights_size:", skl_weights_size)
 
-    onnx_inference_time, onnx_weights_size = onnx_report(opt['n_features'], opt['n_samples'], onnx_model)
-    print('n_features:', opt['n_features'])
-    print('onnx_inference_time:', onnx_inference_time)
-    print('onnx_weights_size:', onnx_weights_size)
+    onnx_inference_time, onnx_weights_size = onnx_report(
+        opt["n_features"], opt["n_samples"], onnx_model
+    )
+    print("n_features:", opt["n_features"])
+    print("onnx_inference_time:", onnx_inference_time)
+    print("onnx_weights_size:", onnx_weights_size)
+
 
 # ----------------------------------------------------------------------------
 
