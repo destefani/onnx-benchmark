@@ -5,7 +5,6 @@ import time
 import click
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 import onnxruntime as rt
 from skl2onnx import convert_sklearn
 from skl2onnx.common.data_types import FloatTensorType
@@ -84,8 +83,9 @@ def onnx_report(n_features, n_samples, model_path):
 
 def execution_time(process):
     """Calculates the execution time of a function"""
+    process = lambda: process
     start_time = time.time()
-    (lambda: process)()
+    process()
     end_time = time.time()
     return end_time - start_time
 
