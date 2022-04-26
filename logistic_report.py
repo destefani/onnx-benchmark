@@ -199,8 +199,9 @@ def parameters_loop(
 
 if __name__ == "__main__":
 
-    n_features = [10, 100, 1000]
-    n_samples = [1e1, 1e2, 1e3, 1e4, 1e5, 1e6]
+    n_features = [10, 100, 1000, 10000]
+    # n_samples = [1, 1e2, 1e3, 1e4, 1e5, 1e6]
+    n_samples = [1]
     model = "logistic_regression"
 
     results_df = parameters_loop(n_features, n_samples, model)
