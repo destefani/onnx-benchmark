@@ -24,7 +24,7 @@ def train_data(n_features):
     return X, y
 
 
-def test_data(n_features, n_samples):
+def test_data(n_features, n_samples) -> np.ndarray:
     """Generate test data"""
     return np.random.rand(int(n_samples), n_features)
 
@@ -37,14 +37,14 @@ def fit_model(X, y, model="logistic_regression"):
     return clf
 
 
-def save_skl(clf, model, n_features, save_directory):
+def save_skl(clf, model, n_features, save_directory) -> Path:
     """Save the sklearn model"""
     filename = Path(save_directory) / f"{model}_{n_features}.joblib"
     dump(clf, filename)
     return filename
 
 
-def save_onnx(clf, model, n_features, save_directory):
+def save_onnx(clf, model, n_features, save_directory) -> Path:
     """Convert the sklearn model to onnx and save it"""
     filename = Path(save_directory) / f"{model}_{n_features}.onnx"
     initial_type = [("float_input", FloatTensorType([None, n_features]))]
@@ -75,7 +75,7 @@ def onnx_report(n_features, n_samples, model_path):
     return inference_time, weights_size
 
 
-def execution_time(process):
+def execution_time(process) -> float:
     """Calculates the execution time of a function in miliseconds"""
     process = lambda: process
     start_time = time.time()
@@ -141,58 +141,24 @@ def parameters_loop(
 # ----------------------------------------------------------------------------
 
 
-# @click.command()
-# @click.option(
-#     "--outdir", help="Where to save the results", metavar="DIR", default="results/"
-# )
-# @click.option(
-#     "--n_features",
-#     help="The number of features in the training data",
-#     metavar="INT",
-#     type=click.IntRange(min=1),
-#     default=100,
-# )
-# @click.option(
-#     "--n_samples",
-#     help="The number of samples in the test data",
-#     metavar="INT",
-#     type=click.IntRange(min=1),
-#     default=1e4,
-# )
-# def main(**kwargs):
-
-#     # Setup
-#     opt = kwargs
-#     print(opt)
-#     check_directory(opt["outdir"])
-
-#     # Define model
-#     X_train, y_train = train_data(opt["n_features"])
-#     print("X_train shape:", X_train.shape)
-#     print("y_train shape:", y_train.shape)
-
-#     clf = fit_model(X_train, y_train)
-#     print(clf)
-
-#     # save models
-#     skl_model = save_skl(clf, opt["outdir"])
-#     onnx_model = save_onnx(clf, opt["n_features"], opt["outdir"])
-#     print(onnx_model)
-
-#     # reports
-#     skl_inference_time, skl_weights_size = skl_report(
-#         opt["n_features"], opt["n_samples"], skl_model
-#     )
-#     print("n_features:", opt["n_features"])
-#     print("skl_inference_time:", skl_inference_time)
-#     print("skl_weights_size:", skl_weights_size)
-
-#     onnx_inference_time, onnx_weights_size = onnx_report(
-#         opt["n_features"], opt["n_samples"], onnx_model
-#     )
-#     print("n_features:", opt["n_features"])
-#     print("onnx_inference_time:", onnx_inference_time)
-#     print("onnx_weights_size:", onnx_weights_size)
+@click.command()
+@click.option(
+    "--outdir", help="Where to save the results", metavar="DIR", default="results/"
+)
+@click.option(
+    "--n_features",
+    help="The number of features in the training data",
+    type=click.IntRange(min=1),
+    default=[10, 100, 1000, 10000],
+)
+@click.option(
+    "--n_samples",
+    help="The number of samples in the test data",
+    metavar="INT",
+    default=[1],
+)
+def main(**kwargs):
+    pass
 
 
 # ----------------------------------------------------------------------------
