@@ -76,12 +76,12 @@ def onnx_report(n_features, n_samples, model_path):
 
 
 def execution_time(process):
-    """Calculates the execution time of a function"""
+    """Calculates the execution time of a function in miliseconds"""
     process = lambda: process
     start_time = time.time()
     process()
     end_time = time.time()
-    return end_time - start_time
+    return (end_time - start_time) * 1000
 
 
 def parameters_loop(
@@ -96,9 +96,9 @@ def parameters_loop(
             "model",
             "n_features",
             "n_samples",
-            "skl_inference_time",
+            "skl_inference_time_ms",
             "skl_weights_size_KB",
-            "onnx_inference_time",
+            "onnx_inference_time_ms",
             "onnx_weights_size_KB",
         ]
     )
@@ -127,9 +127,9 @@ def parameters_loop(
                 "model": model,
                 "n_features": features,
                 "n_samples": samples,
-                "skl_inference_time": skl_inference_time,
+                "skl_inference_time_ms": skl_inference_time,
                 "skl_weights_size_KB": skl_weights_size,
-                "onnx_inference_time": onnx_inference_time,
+                "onnx_inference_time_ms": onnx_inference_time,
                 "onnx_weights_size_KB": onnx_weights_size,
             }
             results_df = pd.DataFrame(results, index=[0])
@@ -200,7 +200,7 @@ def parameters_loop(
 if __name__ == "__main__":
 
     n_features = [10, 100, 1000]
-    n_samples = [1e4, 1e5, 1e6]
+    n_samples = [1e1, 1e2, 1e3, 1e4, 1e5, 1e6]
     model = "logistic_regression"
 
     results_df = parameters_loop(n_features, n_samples, model)
