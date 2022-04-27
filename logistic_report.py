@@ -177,31 +177,25 @@ def model_report(
 
 
 @click.command()
-@click.option(
-    "--outdir", 
-    help="Where to save the results",
-    default="results/"
-)
+@click.option("--outdir", help="Where to save the results", default="results/")
 @click.option(
     "--n_features",
     help="The number of features in the training data",
     multiple=True,
-    default=[10, 100, 1000, 10000]
+    default=[10, 100, 1000, 10000],
 )
 @click.option(
     "--n_samples",
     help="The number of samples in the test data",
     multiple=True,
-    default=[1]
+    default=[1],
 )
-
 @click.option(
     "--models",
     help="The models to run",
     multiple=True,
-    default=["logistic_regression", "decision_tree", "random_forest", "svm"]
+    default=["logistic_regression", "decision_tree", "random_forest", "svm"],
 )
-
 def main(**kwargs):
     """Run the benchmark"""
 
@@ -221,12 +215,11 @@ def main(**kwargs):
             kwargs["n_features"], kwargs["n_samples"], model, kwargs["outdir"]
         )
         report_df = pd.concat([report_df, report], ignore_index=True)
-    
+
     report_df.to_csv(kwargs["outdir"] + "report.csv")
 
     print()
     print(report_df)
-
 
 
 # ----------------------------------------------------------------------------
