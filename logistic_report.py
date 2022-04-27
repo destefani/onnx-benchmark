@@ -8,7 +8,6 @@ import pandas as pd
 import onnxruntime as rt
 from skl2onnx import convert_sklearn
 from skl2onnx.common.data_types import FloatTensorType
-from sklearn.linear_model import LogisticRegression
 
 # ----------------------------------------------------------------------------
 
@@ -32,7 +31,16 @@ def test_data(n_features, n_samples) -> np.ndarray:
 def fit_model(X, y, model="logistic_regression"):
     """Fits a model"""
     if model == "logistic_regression":
+        from sklearn.linear_model import LogisticRegression
         clf = LogisticRegression()
+        clf.fit(X, y)
+    if model == "random_forest":
+        from sklearn.ensemble import RandomForestClassifier
+        clf = RandomForestClassifier()
+        clf.fit(X, y)
+    if model == "svm":
+        from sklearn.svm import SVC
+        clf = SVC()
         clf.fit(X, y)
     return clf
 
@@ -54,7 +62,7 @@ def save_onnx(clf, model, n_features, save_directory) -> Path:
     return filename
 
 
-def skl_report(n_features, n_samples, model_path):
+def skl_report(n_features, n_samples, model_path) -> tuple:
     """Calculates the inference time and model weights of a sklearn model"""
     clf = load(model_path)
     X = test_data(n_features, n_samples)
@@ -63,7 +71,7 @@ def skl_report(n_features, n_samples, model_path):
     return inference_time, weights_size
 
 
-def onnx_report(n_features, n_samples, model_path):
+def onnx_report(n_features, n_samples, model_path) -> tuple:
     """Calculates the inference time and model weights of an onnx model"""
     sess = rt.InferenceSession(str(model_path))
     input_name = sess.get_inputs()[0].name
@@ -76,7 +84,7 @@ def onnx_report(n_features, n_samples, model_path):
 
 
 def execution_time(process) -> float:
-    """Calculates the execution time of a function in miliseconds"""
+    """Calculates the execution time of a function in milliseconds"""
     process = lambda: process
     start_time = time.time()
     process()
@@ -84,7 +92,7 @@ def execution_time(process) -> float:
     return (end_time - start_time) * 1000
 
 
-def parameters_loop(
+def model_loop(
     n_features: list, n_samples: list, model: str, save_directory="results"
 ) -> pd.DataFrame:
     """Calculates the inference time and model weights of a model with different parameters"""
@@ -106,7 +114,8 @@ def parameters_loop(
     for features in n_features:
         # Define model
         X_train, y_train = train_data(features)
-        clf = fit_model(X_train, y_train, "logistic_regression")
+        clf = fit_model(X_train, y_train, model)
+        
         for samples in n_samples:
             print(f"{model} with {features} features and {samples} samples")
 
@@ -168,8 +177,10 @@ if __name__ == "__main__":
     n_features = [10, 100, 1000, 10000]
     # n_samples = [1, 1e2, 1e3, 1e4, 1e5, 1e6]
     n_samples = [1]
-    model = "logistic_regression"
+    # model = "logistic_regression"
+    # model = "random_forest"
+    model = "svm"
 
-    results_df = parameters_loop(n_features, n_samples, model)
-    results_df.to_csv("results.csv", index=False)
+    results_df = model_loop(n_features, n_samples, model)
+    results_df.to_csv("results/results.csv", index=False)
     print(results_df)
