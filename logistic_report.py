@@ -32,19 +32,23 @@ def fit_model(X, y, model="logistic_regression"):
     """Fits a model"""
     if model == "logistic_regression":
         from sklearn.linear_model import LogisticRegression
+
         clf = LogisticRegression()
         clf.fit(X, y)
     if model == "decision_tree":
         from sklearn.tree import DecisionTreeClassifier
+
         clf = DecisionTreeClassifier()
         clf.fit(X, y)
-    
+
     if model == "random_forest":
         from sklearn.ensemble import RandomForestClassifier
+
         clf = RandomForestClassifier()
         clf.fit(X, y)
     if model == "svm":
         from sklearn.svm import SVC
+
         clf = SVC()
         clf.fit(X, y)
     return clf
@@ -67,7 +71,7 @@ def save_onnx(clf, model, n_features, save_directory) -> Path:
     return filename
 
 
-def skl_stats(n_features, n_samples, model_path) -> tuple:
+def skl_benchmark(n_features, n_samples, model_path) -> tuple:
     """Calculates the inference time and model weights of a sklearn model"""
     clf = load(model_path)
     X = test_data(n_features, n_samples)
@@ -76,7 +80,7 @@ def skl_stats(n_features, n_samples, model_path) -> tuple:
     return inference_time, weights_size
 
 
-def onnx_stats(n_features, n_samples, model_path) -> tuple:
+def onnx_benchmark(n_features, n_samples, model_path) -> tuple:
     """Calculates the inference time and model weights of an onnx model"""
     sess = rt.InferenceSession(str(model_path))
     input_name = sess.get_inputs()[0].name
@@ -97,6 +101,9 @@ def execution_time(process) -> float:
     return (end_time - start_time) * 1000
 
 
+# ----------------------------------------------------------------------------
+
+
 def init_report_df():
     """Initialize the report dataframe"""
     return pd.DataFrame(
@@ -112,6 +119,27 @@ def init_report_df():
     )
 
 
+def update_report_df(report_df, model, n_features, n_samples, skl_stats, onnx_stats):
+    """Update the report dataframe"""
+    new_row = {
+        "model": model,
+        "n_features": n_features,
+        "n_samples": n_samples,
+        "skl_inference_time_ms": skl_stats[0],
+        "skl_weights_size_KB": skl_stats[1],
+        "onnx_inference_time_ms": onnx_stats[0],
+        "onnx_weights_size_KB": onnx_stats[1],
+    }
+
+    new_row_df = pd.DataFrame(new_row, index=[0])
+    report_df = pd.concat([report_df, new_row_df], ignore_index=True)
+
+    return report_df
+
+
+# ----------------------------------------------------------------------------
+
+
 def model_report(
     n_features: list, n_samples: list, model: str, save_directory="results"
 ) -> pd.DataFrame:
@@ -125,7 +153,7 @@ def model_report(
         # Define model
         X_train, y_train = train_data(features)
         clf = fit_model(X_train, y_train, model)
-        
+
         for samples in n_samples:
             print(f"{model} with {features} features and {samples} samples")
 
@@ -134,25 +162,13 @@ def model_report(
             onnx_model = save_onnx(clf, model, features, save_directory)
 
             # Calculate inference time and model weights
-            skl_inference_time, skl_weights_size = skl_stats(
-                features, samples, skl_model
-            )
-            onnx_inference_time, onnx_weights_size = onnx_stats(
-                features, samples, onnx_model
-            )
+            skl_stats = skl_benchmark(features, samples, skl_model)
+            onnx_stats = onnx_benchmark(features, samples, onnx_model)
 
-            # Save results
-            results = {
-                "model": model,
-                "n_features": features,
-                "n_samples": samples,
-                "skl_inference_time_ms": skl_inference_time,
-                "skl_weights_size_KB": skl_weights_size,
-                "onnx_inference_time_ms": onnx_inference_time,
-                "onnx_weights_size_KB": onnx_weights_size,
-            }
-            results_df = pd.DataFrame(results, index=[0])
-            report_df = pd.concat([report_df, results_df], ignore_index=True)
+            # Update report
+            report_df = update_report_df(
+                report_df, model, features, samples, skl_stats, onnx_stats
+            )
 
     return report_df
 
@@ -187,15 +203,13 @@ def model_report(
 # def main(**kwargs):
 
 #     report_df = pd.DataFrame()
-    
+
 #     for model in kwargs["models"]:
 
 
 #         report = model_report(
 #             kwargs["n_features"], kwargs["n_samples"], model, kwargs["outdir"]
 #         )
-        
-    
 
 
 # ----------------------------------------------------------------------------
