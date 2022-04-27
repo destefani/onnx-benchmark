@@ -34,5 +34,6 @@ python onnx_benchmark.py \
 <img src="./assets/report.png">
 
 ## To-do:
-- Collect information about the system and add it to the report. 
+- Collect information about the system and add it to the report.
+- Benchmark runtime footprint.
 - Implement more models.
