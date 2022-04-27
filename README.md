@@ -16,7 +16,6 @@ All results will be exported as a csv file to the specified directory.
 ## Basic usage
 ```
 python onnx_benchmark.py
-
 ```
 
 ## CLI
