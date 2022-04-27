@@ -34,6 +34,11 @@ def fit_model(X, y, model="logistic_regression"):
         from sklearn.linear_model import LogisticRegression
         clf = LogisticRegression()
         clf.fit(X, y)
+    if model == "decision_tree":
+        from sklearn.tree import DecisionTreeClassifier
+        clf = DecisionTreeClassifier()
+        clf.fit(X, y)
+    
     if model == "random_forest":
         from sklearn.ensemble import RandomForestClassifier
         clf = RandomForestClassifier()
@@ -62,7 +67,7 @@ def save_onnx(clf, model, n_features, save_directory) -> Path:
     return filename
 
 
-def skl_report(n_features, n_samples, model_path) -> tuple:
+def skl_stats(n_features, n_samples, model_path) -> tuple:
     """Calculates the inference time and model weights of a sklearn model"""
     clf = load(model_path)
     X = test_data(n_features, n_samples)
@@ -71,7 +76,7 @@ def skl_report(n_features, n_samples, model_path) -> tuple:
     return inference_time, weights_size
 
 
-def onnx_report(n_features, n_samples, model_path) -> tuple:
+def onnx_stats(n_features, n_samples, model_path) -> tuple:
     """Calculates the inference time and model weights of an onnx model"""
     sess = rt.InferenceSession(str(model_path))
     input_name = sess.get_inputs()[0].name
@@ -92,14 +97,9 @@ def execution_time(process) -> float:
     return (end_time - start_time) * 1000
 
 
-def model_loop(
-    n_features: list, n_samples: list, model: str, save_directory="results"
-) -> pd.DataFrame:
-    """Calculates the inference time and model weights of a model with different parameters"""
-
-    check_directory(save_directory)  # add temporary directory
-
-    report_df = pd.DataFrame(
+def init_report_df():
+    """Initialize the report dataframe"""
+    return pd.DataFrame(
         columns=[
             "model",
             "n_features",
@@ -110,6 +110,16 @@ def model_loop(
             "onnx_weights_size_KB",
         ]
     )
+
+
+def model_report(
+    n_features: list, n_samples: list, model: str, save_directory="results"
+) -> pd.DataFrame:
+    """Calculates the inference time and model weights of a model with different parameters"""
+
+    check_directory(save_directory)  # add temporary directory
+
+    report_df = init_report_df()
 
     for features in n_features:
         # Define model
@@ -124,10 +134,10 @@ def model_loop(
             onnx_model = save_onnx(clf, model, features, save_directory)
 
             # Calculate inference time and model weights
-            skl_inference_time, skl_weights_size = skl_report(
+            skl_inference_time, skl_weights_size = skl_stats(
                 features, samples, skl_model
             )
-            onnx_inference_time, onnx_weights_size = onnx_report(
+            onnx_inference_time, onnx_weights_size = onnx_stats(
                 features, samples, onnx_model
             )
 
@@ -150,24 +160,42 @@ def model_loop(
 # ----------------------------------------------------------------------------
 
 
-@click.command()
-@click.option(
-    "--outdir", help="Where to save the results", metavar="DIR", default="results/"
-)
-@click.option(
-    "--n_features",
-    help="The number of features in the training data",
-    type=click.IntRange(min=1),
-    default=[10, 100, 1000, 10000],
-)
-@click.option(
-    "--n_samples",
-    help="The number of samples in the test data",
-    metavar="INT",
-    default=[1],
-)
-def main(**kwargs):
-    pass
+# @click.command()
+# @click.option(
+#     "--outdir", help="Where to save the results", metavar="DIR", default="results/"
+# )
+# @click.option(
+#     "--n_features",
+#     help="The number of features in the training data",
+#     type=click.IntRange(min=1),
+#     default=[10, 100, 1000, 10000],
+# )
+# @click.option(
+#     "--n_samples",
+#     help="The number of samples in the test data",
+#     metavar="INT",
+#     default=[1],
+# )
+
+# @click.option(
+#     "--models",
+#     help="The models to run",
+#     type=click.Choice(["logistic_regression", "decision_tree", "random_forest", "svm"]),
+#     default=["logistic_regression", "decision_tree", "random_forest", "svm"],
+# )
+
+# def main(**kwargs):
+
+#     report_df = pd.DataFrame()
+    
+#     for model in kwargs["models"]:
+
+
+#         report = model_report(
+#             kwargs["n_features"], kwargs["n_samples"], model, kwargs["outdir"]
+#         )
+        
+    
 
 
 # ----------------------------------------------------------------------------
@@ -179,8 +207,11 @@ if __name__ == "__main__":
     n_samples = [1]
     # model = "logistic_regression"
     # model = "random_forest"
-    model = "svm"
+    # model = "svm"
+    model = "decision_tree"
 
-    results_df = model_loop(n_features, n_samples, model)
+    # models = ["logistic_regression", "random_forest", "svm", "decision_tree"]1
+
+    results_df = model_report(n_features, n_samples, model)
     results_df.to_csv("results/results.csv", index=False)
     print(results_df)
