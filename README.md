@@ -30,6 +30,9 @@ python onnx_benchmark.py \
 
 ```
 
+## Example report
+<img src="./assets/report.png">
+
 ## To-do:
 - Collect information about the system and add it to the report. 
 - Implement more models.
