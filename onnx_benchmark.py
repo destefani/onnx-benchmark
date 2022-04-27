@@ -177,7 +177,10 @@ def model_report(
 
 
 @click.command()
-@click.option("--outdir", help="Where to save the results", default="results/")
+@click.option("--outdir",
+    help="Where to save the results",
+    default="results/"
+)
 @click.option(
     "--n_features",
     help="The number of features in the training data",
@@ -196,6 +199,7 @@ def model_report(
     multiple=True,
     default=["logistic_regression", "decision_tree", "random_forest", "svm"],
 )
+
 def main(**kwargs):
     """Run the benchmark"""
 
