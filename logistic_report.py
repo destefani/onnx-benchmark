@@ -176,56 +176,60 @@ def model_report(
 # ----------------------------------------------------------------------------
 
 
-# @click.command()
-# @click.option(
-#     "--outdir", help="Where to save the results", metavar="DIR", default="results/"
-# )
-# @click.option(
-#     "--n_features",
-#     help="The number of features in the training data",
-#     type=click.IntRange(min=1),
-#     default=[10, 100, 1000, 10000],
-# )
-# @click.option(
-#     "--n_samples",
-#     help="The number of samples in the test data",
-#     metavar="INT",
-#     default=[1],
-# )
+@click.command()
+@click.option(
+    "--outdir", 
+    help="Where to save the results",
+    default="results"
+)
+@click.option(
+    "--n_features",
+    help="The number of features in the training data",
+    multiple=True,
+    default=[10, 100, 1000, 10000]
+)
+@click.option(
+    "--n_samples",
+    help="The number of samples in the test data",
+    multiple=True,
+    default=[1]
+)
 
-# @click.option(
-#     "--models",
-#     help="The models to run",
-#     type=click.Choice(["logistic_regression", "decision_tree", "random_forest", "svm"]),
-#     default=["logistic_regression", "decision_tree", "random_forest", "svm"],
-# )
+@click.option(
+    "--models",
+    help="The models to run",
+    multiple=True,
+    default=["logistic_regression", "decision_tree", "random_forest", "svm"]
+)
 
-# def main(**kwargs):
+def main(**kwargs):
+    """Run the benchmark"""
 
-#     report_df = pd.DataFrame()
+    print("Running benchmark...")
+    print()
+    print(f"Output directory: {kwargs['outdir']}")
+    print(f"Models: {kwargs['models']}")
+    print(f"Features: {kwargs['n_features']}")
+    print(f"Samples: {kwargs['n_samples']}")
+    print()
 
-#     for model in kwargs["models"]:
+    report_df = init_report_df()
 
+    print("Running models...")
+    for model in kwargs["models"]:
+        report = model_report(
+            kwargs["n_features"], kwargs["n_samples"], model, kwargs["outdir"]
+        )
+        report_df = pd.concat([report_df, report], ignore_index=True)
+    
+    report_df.to_csv(kwargs["outdir"] + "report.csv")
 
-#         report = model_report(
-#             kwargs["n_features"], kwargs["n_samples"], model, kwargs["outdir"]
-#         )
+    print()
+    print(report_df)
+
 
 
 # ----------------------------------------------------------------------------
 
 if __name__ == "__main__":
-
-    n_features = [10, 100, 1000, 10000]
-    # n_samples = [1, 1e2, 1e3, 1e4, 1e5, 1e6]
-    n_samples = [1]
-    # model = "logistic_regression"
-    # model = "random_forest"
-    # model = "svm"
-    model = "decision_tree"
-
-    # models = ["logistic_regression", "random_forest", "svm", "decision_tree"]1
-
-    results_df = model_report(n_features, n_samples, model)
-    results_df.to_csv("results/results.csv", index=False)
-    print(results_df)
+    main()
