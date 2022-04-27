@@ -180,7 +180,7 @@ def model_report(
 @click.option(
     "--outdir", 
     help="Where to save the results",
-    default="results"
+    default="results/"
 )
 @click.option(
     "--n_features",
