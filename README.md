@@ -1,4 +1,4 @@
-# ONNX Benchamrking
+# ONNX Benchmarking
 
 ## Description
 Benchmark footprint and performance of ONNX models.
