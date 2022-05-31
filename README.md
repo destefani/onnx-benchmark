@@ -1,4 +1,4 @@
-# ONNX Benchamrking
+# ONNX Benchmarking
 
 ## Description
 Benchmark footprint and performance of ONNX models.
@@ -16,7 +16,6 @@ All results will be exported as a csv file to the specified directory.
 ## Basic usage
 ```
 python onnx_benchmark.py
-
 ```
 
 ## CLI
@@ -27,7 +26,6 @@ python onnx_benchmark.py \
     --n_features 10 --n_features 100 --n_features 1000 --n_features 10000 \
     --n_samples 1 \
     --models logistic_regression --models decision_tree --models random_forest --models svm
-
 ```
 
 ## Example report
