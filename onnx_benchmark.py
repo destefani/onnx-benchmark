@@ -12,7 +12,7 @@ from skl2onnx.common.data_types import FloatTensorType
 # ----------------------------------------------------------------------------
 
 
-def check_directory(path):
+def check_directory(path) -> None:
     Path(path).mkdir(exist_ok=True)
 
 
@@ -104,7 +104,7 @@ def execution_time(process) -> float:
 # ----------------------------------------------------------------------------
 
 
-def init_report_df():
+def init_report_df() -> None:
     """Initialize the report dataframe"""
     return pd.DataFrame(
         columns=[
